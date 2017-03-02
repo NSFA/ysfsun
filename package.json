@@ -1,6 +1,6 @@
 {
   "name": "ysfsun",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "七鱼模块自动化构建工具",
   "main": "./src/ysfsun.js",
   "scripts": {
