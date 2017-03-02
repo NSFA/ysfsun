@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+use strict;
 const program = require('commander');
 const Sfcomponent = require('./Sfcomponent');
 const questions = require('./tpl/questions');

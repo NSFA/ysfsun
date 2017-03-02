@@ -1,3 +1,4 @@
+use strict;
 const fs = require('fs');
 var moduleName = '';
 const inquirer = require('inquirer');
