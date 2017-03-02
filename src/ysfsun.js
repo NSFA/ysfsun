@@ -7,8 +7,10 @@ const program = require('commander');
 const Handlebars = require('handlebars');
 const moment = require('moment');
 const buf = new Buffer(1024);
-var model = require('./model');
+const tpl = require('./tpl/template');
 
+var packageJson, karmaConfJs, webpackConfigJs, gitignore, readmeMd, styleJs, webpackConfCssJs,
+    eslintrc, babelrc, srcIndex, srcStyle, srcTable, srcVue, srcUtil, indexHtml, initFile;
 class Sfcomponent {
     constructor(questions) {
         this.questions = questions;
@@ -19,57 +21,69 @@ class Sfcomponent {
      */
     build(moduleName, name) {
         try {
-            fs.mkdirSync(moduleName, function() {
+            fs.mkdirSync(moduleName, (err) => {
 
             })
-            fs.mkdirSync(moduleName + '/docs', function() {
-
+            fs.mkdirSync(moduleName + '/dist', (err) => {
+                    if(err) throw err;
             })
-            fs.mkdirSync(moduleName + '/src', function() {
-
+            fs.mkdirSync(moduleName + '/src', (err) => {
+                    if(err) throw err;
             })
-            fs.mkdirSync(moduleName + '/test', function() {
-
+            fs.mkdirSync(moduleName + '/test', (err) => {
+                    if(err) throw err;
             })
-            fs.mkdirSync(moduleName + '/examples', function() {
-
+            fs.writeFile(moduleName + '/karma.conf.js', karmaConfJs, (err) => {
+                    if(err) throw err;
             })
-            fs.writeFile(moduleName + '/examples/' + name + '.html', exampleHtml, function() {
-
+            fs.writeFile(moduleName + '/package.json', packageJson, (err) => {
+                    if(err) throw err;
             })
-            fs.writeFile(moduleName + '/karma.conf.js', karmaConfJs, function() {
-
+            fs.writeFile(moduleName + '/README.md', readmeMd, (err) => {
+                    if(err) throw err;
             })
-            fs.writeFile(moduleName + '/package.json', packageJson, function() {
-
+            fs.writeFile(moduleName + '/webpack.config.js', webpackConfigJs, (err) => {
+                    if(err) throw err;
             })
-            fs.writeFile(moduleName + '/README.md', readmeMd, function() {
-
+            fs.writeFile(moduleName + '/.gitignore', gitignore, (err) => {
+                    if(err) throw err;
             })
-            fs.writeFile(moduleName + '/webpack.config.js', webpackConfigJs, function() {
-
+            fs.writeFile(moduleName + '/.babelrc', babelrc, (err) => {
+                    if(err) throw err;
             })
-            fs.writeFile(moduleName + '/.gitignore', gitignore, function() {
-
+            fs.writeFile(moduleName + '/.eslintrc', eslintrc, (err) => {
+                    if(err) throw err;
             })
-            fs.writeFile(moduleName + '/src/' + name + '.js', srcJs, function() {
-
+            fs.writeFile(moduleName + '/style.js', styleJs, (err) => {
+                    if(err) throw err;
             })
-            fs.writeFile(moduleName + '/src/' + name + '.html', srcHtml, function() {
-
+            fs.writeFile(moduleName + '/webpack.config.css.js', webpackConfCssJs, (err) => {
+                    if(err) throw err;
             })
-            fs.writeFile(moduleName + '/src/' + name + '.scss', '', function() {
-
+            fs.writeFile(moduleName + '/src/index.js', srcIndex, (err) => {
+                    if(err) throw err;
             })
-            fs.writeFile(moduleName + '/test/' + 'index.js', '', function() {
-
+            fs.writeFile(moduleName + '/src/style.css', srcStyle, (err) => {
+                    if(err) throw err;
             })
-            fs.writeFile(moduleName + '/test/' + name + '.spec.html', '', function() {
-
+            fs.writeFile(moduleName + '/src/' + name + '.vue', srcVue, (err) => {
+                    if(err) throw err;
             })
-            fs.writeFile(moduleName + '/docs/' + name + '.html', docHtml, function() {
-
+            fs.writeFile(moduleName + '/src/' + name + '.css', srcTable, (err) => {
+                    if(err) throw err;
             })
+            fs.writeFile(moduleName + '/src/util.js', srcUtil, (err) => {
+                    if(err) throw err;
+            })
+            fs.writeFile(moduleName + '/test/' + 'index.js', '', (err) => {
+                    if(err) throw err;
+            })
+            fs.writeFile(moduleName + '/test/' + name + '.spec.html', '', (err) => {
+                    if(err) throw err;
+            })
+            fs.writeFile(moduleName + '/dist/' + 'index.html', indexHtml, (err) => {
+                    if(err) throw err;
+            })   
         } catch (err) {
             console.log(err);
         }
@@ -79,36 +93,37 @@ class Sfcomponent {
      * compile config.js
      */
     compileConf() {
+        var self = this;
         try {
-            fs.open('config.json', 'r+', function(err, fd) {
-                fs.read(fd, buf, 0, buf.length, 0, function(err, bytes) {
-                    if (bytes > 0) {
-                        var str = buf.slice(0, bytes).toString();
-                        var obj = JSON.parse(str);
-                        var _index = obj.moduleName.indexOf('-')
-                        var name = obj.moduleName.slice(_index + 1);
-                        var Data = {
-                            moduleName: obj.moduleName,
-                            description: obj.description,
-                            author: obj.author,
-                            name: name,
-                            time: moment().format('lll'),
-                            gitAdress: obj.gitAdress
-                        }
-                        packageJson = Handlebars.compile(model.packageJson)(Data);
-                        karmaConfJs = Handlebars.compile(model.karmaConfJs)({});
-                        webpackConfigJs = Handlebars.compile(model.webpackConfigJs)(Data);
-                        gitignore = Handlebars.compile(model.gitignore)({});
-                        srcHtml = Handlebars.compile(model.srcHtml)(Data);
-                        srcJs = Handlebars.compile(model.srcJs)(Data);
-                        readmeMd = Handlebars.compile(model.readmeMd)(Data);
-                        docHtml = Handlebars.compile(model.docHtml)(Data);
-                        exampleHtml = Handlebars.compile(model.exampleHtml)(Data);
-                        build(obj.moduleName, name);
-                        console.log(obj.moduleName + '目录已创建.');
-                    }
-                })
+            fs.exists('config.json', (exists) => {
+                if (!!exists) {
+                    fs.open('config.json', 'r+', function(err, fd) {
+                        fs.read(fd, buf, 0, buf.length, 0, function(err, bytes) {
+                            if (bytes > 0) {
+                                var str = buf.slice(0, bytes).toString();
+                                var obj = JSON.parse(str);
+                                var _index = obj.moduleName.indexOf('-')
+                                var name = obj.moduleName.slice(_index + 1);
+                                var Data = {
+                                    moduleName: obj.moduleName,
+                                    description: obj.description,
+                                    author: obj.author,
+                                    name: name,
+                                    time: moment().format('lll'),
+                                    gitAdress: obj.gitAdress
+                                }
+
+                                self.compileTpl(Data);
+                                self.build(obj.moduleName, name);
+                                console.log(obj.moduleName + '目录已创建.');
+                            }
+                        })
+                    })
+                }else{
+                    console.log('未找到config.js文件，执行ysfsun init生成config文件');
+                }
             })
+
         } catch (err) {
             console.log(err);
         }
@@ -118,7 +133,7 @@ class Sfcomponent {
      * echo init config.js
      */
     echoConf() {
-        fs.writeFile('config.json', model.initFile, function(err) {
+        fs.writeFile('config.json', tpl.initFile, (err) => {
             if (err) {
                 console.log(err);
             }
@@ -127,9 +142,10 @@ class Sfcomponent {
     }
 
     /**
-    * create sf-XXX by shell cmd
-    */
+     * create sf-XXX by shell cmd
+     */
     echoSfByShell() {
+        var self = this;
         inquirer.prompt(questions).then(function(answers) {
             console.log('success!!');
             try {
@@ -143,20 +159,91 @@ class Sfcomponent {
                     time: moment().format('lll'),
                     gitAdress: answers.gitAdress
                 }
-                packageJson = Handlebars.compile(model.packageJson)(Data);
-                karmaConfJs = Handlebars.compile(model.karmaConfJs)({});
-                webpackConfigJs = Handlebars.compile(model.webpackConfigJs)(Data);
-                gitignore = Handlebars.compile(model.gitignore)({});
-                srcHtml = Handlebars.compile(model.srcHtml)(Data);
-                srcJs = Handlebars.compile(model.srcJs)(Data);
-                readmeMd = Handlebars.compile(model.readmeMd)(Data);
-                docHtml = Handlebars.compile(model.docHtml)(Data);
-                exampleHtml = Handlebars.compile(model.exampleHtml)(Data);
-                build(answers.moduleName, name);
+
+                self.compileTpl(Data);
+                self.build(answers.moduleName, name);
                 console.log(answers.moduleName + '目录已创建.');
             } catch (err) {
                 console.log(err);
             }
         })
     }
+
+    /**
+     * complie template
+     */
+    compileTpl(Data) {
+        try {
+            packageJson = Handlebars.compile(tpl.package)(Data);
+            karmaConfJs = Handlebars.compile(tpl.karmaConf)(Data);
+            webpackConfigJs = Handlebars.compile(tpl.conf)(Data);
+            gitignore = Handlebars.compile(tpl.ignore)(Data);
+            readmeMd = Handlebars.compile(tpl.readme)(Data);
+            styleJs = Handlebars.compile(tpl.style)(Data);
+            webpackConfCssJs = Handlebars.compile(tpl.cssConf)(Data);
+            eslintrc = Handlebars.compile(tpl.eslintrc)(Data);
+            babelrc = Handlebars.compile(tpl.babelrc)(Data);
+
+            srcIndex = Handlebars.compile(tpl.srcIndex)(Data);
+            srcStyle = Handlebars.compile(tpl.srcStyle)(Data);
+            srcTable = Handlebars.compile(tpl.srcTable)(Data);
+            srcVue = Handlebars.compile(tpl.srcVue)(Data);
+            srcUtil = Handlebars.compile(tpl.srcUtil)(Data);
+            indexHtml = Handlebars.compile(tpl.indexHtml)(Data);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+}
+
+
+var questions = [{
+    type: 'input',
+    name: 'moduleName',
+    message: '输入组件名称(sf-为前缀最好)',
+    default: false,
+    validate: function(value) {
+        var index = value.indexOf('-');
+        if (index == -1) {
+            return '模块命名格式须为xxx-name.'
+        } else {
+            return true;
+        }
+    }
+}, {
+    type: 'input',
+    name: 'description',
+    message: '输入组件description信息(非必填)',
+    default: false
+}, {
+    type: 'input',
+    name: 'author',
+    message: '输入作者姓名(非必填)',
+    default: false
+}, {
+    type: 'input',
+    name: 'gitAdress',
+    message: '项目托管github地址(非必填)',
+    default: ''
+}];
+
+
+program.version('0.0.2')
+    .option('run, --runParam', '运行脚本')
+    .option('-c ,--compile', '编译当前目录下config.js文件')
+    .option('init,--initParam', '初始化config.js文件')
+    .parse(process.argv);
+
+var instance = new Sfcomponent(questions);
+
+if (program.runParam) {
+    instance.echoSfByShell();
+}
+else if(program.compile) {
+    instance.compileConf();
+}
+else if(program.initParam) {
+    instance.echoConf();
+}else{
+    console.log('输入命令ysfsun run运行脚本');
 }
